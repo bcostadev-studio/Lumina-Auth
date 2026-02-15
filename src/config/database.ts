@@ -1,6 +1,5 @@
 import { DataSource } from 'typeorm';
 import config from './config';
-import { UserEntity } from '../models/UserEntity';
 import { i18n } from '../i18n/i18n';
 
 export const AppDataSource = new DataSource({
@@ -12,7 +11,7 @@ export const AppDataSource = new DataSource({
   database: config.database.database,
   synchronize: config.database.synchronize,
   logging: config.database.logging,
-  entities: [UserEntity],
+  entities: [`${__dirname}/../models/*.{js,ts}`],
   subscribers: [],
   migrations: [],
 });

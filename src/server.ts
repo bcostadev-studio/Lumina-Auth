@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import app from './app';
 import config from './config/config';
 import { i18n } from './i18n/i18n';

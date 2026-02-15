@@ -58,3 +58,7 @@ coverage/
 # Cache
 .eslintcache
 .prettiercache
+
+# Lock files
+package-lock.json
+yarn.lock

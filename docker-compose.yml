@@ -1,11 +1,9 @@
-version: '3.8'
-
 services:
   # Node.js API Application
   api:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     ports:
       - '${PORT}:${PORT}'
     environment:
@@ -28,8 +26,6 @@ services:
       - /app/node_modules
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     restart: unless-stopped
     command: npm run dev
@@ -61,41 +57,8 @@ services:
       timeout: 5s
       retries: 5
 
-  # Redis Cache
-  redis:
-    image: redis:${REDIS_VERSION}
-    ports:
-      - '${REDIS_PORT}:6379'
-    volumes:
-      - redis_data:/data
-    restart: unless-stopped
-    networks:
-      - lumina-network
-    healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    ports:
-      - '${PGADMIN_PORT}:80'
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
-      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    depends_on:
-      - postgres
-    restart: unless-stopped
-    networks:
-      - lumina-network
-
 volumes:
   postgres_data:
-  redis_data:
-  pgadmin_data:
 
 networks:
   lumina-network:

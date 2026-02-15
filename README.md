@@ -1,549 +1,262 @@
-# Lumina API - Authentication System
+# Lumina API - Sistema de Autenticação
 
-A production-ready, secure authentication system built with Node.js, Express, and TypeScript. Implements JWT-based authentication with bcrypt password hashing, comprehensive input validation, rate limiting, and full test coverage.
+Sistema de autenticação seguro e pronto para produção construído com Node.js, Express e TypeScript. Implementa autenticação baseada em JWT com hash de senhas bcrypt, validação completa de entrada, limitação de taxa, internacionalização e cobertura total de testes.
 
-## 🚀 Features
+![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/redis-%23DC382D.svg?style=for-the-badge&logo=redis&logoColor=white)
+![Node.js](https://img.shields.io/badge/node.js-%23339933.svg?style=for-the-badge&logo=node.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-%23F7DF1E.svg?style=for-the-badge&logo=jsonwebtokens&logoColor=black)
+![Jest](https://img.shields.io/badge/jest-%23C21325.svg?style=for-the-badge&logo=jest&logoColor=white)
+![TypeORM](https://img.shields.io/badge/typeorm-%2300BFFF.svg?style=for-the-badge&logo=typeorm&logoColor=white)
+![i18n](https://img.shields.io/badge/i18n-%23FF5733.svg?style=for-the-badge&logo=internationalization&logoColor=white)
+![Github Actions](https://img.shields.io/badge/github%20actions-%23181717.svg?style=for-the-badge&logo=githubactions&logoColor=white)
 
-- **Secure Password Hashing**: bcrypt with configurable salt rounds
-- **JWT Authentication**: Access and refresh token system
-- **Input Validation**: Strict schema validation with Joi
-- **Rate Limiting**: Prevent brute force and DoS attacks
-- **TypeScript**: Full type safety across the codebase
-- **Error Handling**: Secure, informative error responses
-- **Comprehensive Tests**: Unit and integration tests with Jest
-- **Production Ready**: Security best practices implemented
+---
+## ✨ Principais Funcionalidades
 
-## 📋 Requirements
+### 🔐 Autenticação e Segurança
+- **Registro de Usuários**: Criação de contas com validação de email, senha e nome de usuário
+- **Login Seguro**: Autenticação com email e senha usando bcrypt (10 salt rounds)
+- **Sistema JWT**: Tokens de acesso (15 min) e refresh (7 dias) com rotação automática
+- **Refresh Token**: Renovação automática de tokens sem necessidade de novo login
+- **Logout**: Invalidação de sessão no cliente
+- **Perfil de Usuário**: Acesso a informações do usuário autenticado
 
-- Node.js 16+ (tested with Node.js 20.x)
-- npm 8+
+### 🌍 Internacionalização (i18n)
+- **Suporte Multi-idioma**: Sistema de internacionalização completo
+  - Português (pt)
+  - Inglês (en)
+  - Espanhol (es)
+- **Mensagens Customizadas**: Todas as respostas traduzidas (erros, sucessos, validações)
 
-## 🛠️ Installation
+### 💾 Banco de Dados
+- **TypeORM**: ORM robusto para PostgreSQL
+- **Entidades Estruturadas**: Modelo User com timestamps automáticos
+- **Sistema de Roles**: Suporte a múltiplos papéis de usuário (extensível)
+- **Migrations**: Sincronização automática em desenvolvimento
 
-### 1. Install Dependencies
+### 🐳 DevOps e Infraestrutura
+- **Docker Compose**: Ambiente completo containerizado
+  - PostgreSQL: Banco de dados principal (porta 5432)
+  - API Node.js: Aplicação principal (porta 3000)
+- **Health Checks**: Monitoramento de saúde dos serviços
+- **Hot Reload**: Desenvolvimento com nodemon e ts-node
+
+### 🧪 Testes
+- **Jest**: Framework de testes completo
+- **Testes Unitários**: Cobertura dos serviços de autenticação
+- **Testes de Integração**: Validação end-to-end das rotas
+- **Supertest**: Testes de API HTTP
+- **Watch Mode**: Desenvolvimento com testes contínuos
+
+## 📋 Requisitos
+
+- Node.js 22+
+- npm 11+
+- PostgreSQL 14+ (ou Docker)
+- Redis (opcional, via Docker)
+
+## 🛠️ Instalação
+
+### 1. Clonar o Repositório
+
+```bash
+git clone <repository-url>
+cd Lumina-API
+```
+
+### 2. Instalar Dependências
 
 ```bash
 npm install
 ```
 
-### 2. Configure Environment Variables
+**Variáveis de ambiente importantes:**
 
-```bash
-# Copy the example environment file
-cp .env.example .env
-
-# Edit .env with your configuration
-nano .env
-```
-
-**Important environment variables:**
 ```env
+# Servidor
 PORT=3000
 NODE_ENV=development
-JWT_SECRET=your-secret-key-change-in-production
-JWT_ACCESS_EXPIRY=15m
-JWT_REFRESH_EXPIRY=7d
+
+# JWT
+JWT_SECRET=sua-chave-secreta-mude-em-producao
+JWT_ACCESS_EXPIRY=900000        # 15 minutos em ms
+JWT_REFRESH_EXPIRY=604800000    # 7 dias em ms
+
+# Bcrypt
 BCRYPT_SALT_ROUNDS=10
 
-# PostgreSQL Database Configuration
+# PostgreSQL
 DB_HOST=localhost
 DB_PORT=5432
 DB_USERNAME=postgres
 DB_PASSWORD=postgres
 DB_NAME=lumina
+
+# Rate Limiting
+RATE_LIMIT_WINDOW_MS=900000     # 15 minutos
+RATE_LIMIT_MAX_REQUESTS=100
+
+# CORS
+CORS_ORIGIN=http://localhost:3000
+
+# Redis (opcional)
+REDIS_PORT=6379
+REDIS_VERSION=7-alpine
+
+# pgAdmin
+PGADMIN_PORT=5050
+PGADMIN_DEFAULT_EMAIL=admin@lumina.com
+PGADMIN_DEFAULT_PASSWORD=admin
 ```
 
-For production, generate a strong JWT_SECRET:
+Para produção, gere uma chave JWT segura:
 ```bash
 openssl rand -base64 32
 ```
 
-### 3. Setup PostgreSQL Database
+### 4. Iniciar com Docker Compose (Recomendado)
 
-#### Option A: Using Docker Compose (Recommended)
 ```bash
-docker-compose up -d postgres
+
+docker-compose up -d
+
+
+docker-compose logs -f
+
+
+docker-compose down
 ```
 
-This will start PostgreSQL on port 5432 with the configured credentials.
+Isso iniciará:
+- ✅ PostgreSQL na porta 5432
+- ✅ Redis na porta 6379
+- ✅ pgAdmin na porta 5050
+- ✅ API Node.js na porta 3000
 
-#### Option B: Local PostgreSQL Installation
-Ensure PostgreSQL is installed and running:
+Acesse:
+- **API**: http://localhost:3000
+- **pgAdmin**: http://localhost:5050
+
+### 5. Instalação Manual (Sem Docker)
+
+#### PostgreSQL
+
+**macOS:**
 ```bash
-# macOS
 brew install postgresql
 brew services start postgresql
+```
 
-# Linux
+**Linux:**
+```bash
 sudo apt-get install postgresql postgresql-contrib
 sudo systemctl start postgresql
-
-# Windows: Download from https://www.postgresql.org/download/windows/
 ```
 
-Create the database:
+**Criar banco de dados:**
 ```sql
+CREATE DATABASE lumina;
 CREATE USER lumina_user WITH PASSWORD 'lumina_password';
-CREATE DATABASE lumina OWNER lumina_user;
+GRANT ALL PRIVILEGES ON DATABASE lumina TO lumina_user;
 ```
 
-### 4. Run Development Server
+#### Iniciar Servidor de Desenvolvimento
 
 ```bash
 npm run dev
 ```
 
-Server will start on `http://localhost:3000`
+O servidor estará disponível em `http://localhost:3000`
 
-The database tables will be automatically created (TypeORM synchronize enabled for development).
+## 📁 Estrutura do Projeto
 
-**Docker Compose Setup (All Services):**
+```
+Lumina-API/
+├── src/
+│   ├── @types/              # Definições TypeScript
+│   │   ├── auth/
+│   │   │   └── Auth.ts      # Interfaces de autenticação
+│   │   ├── config/
+│   │   │   └── Configuration.ts
+│   │   └── user/
+│   │       └── User.ts
+│   ├── config/              # Configurações
+│   │   ├── config.ts        # Variáveis de ambiente
+│   │   └── database.ts      # Configuração TypeORM
+│   ├── controllers/         # Controladores HTTP
+│   │   ├── AuthController.ts
+│   │   └── index.ts
+│   ├── middlewares/         # Middlewares Express
+│   │   ├── AuthMiddleware.ts    # JWT verification
+│   │   ├── ErrorHandler.ts      # Error handling global
+│   │   ├── RateLimiter.ts       # Rate limiting
+│   │   └── index.ts
+│   ├── models/              # Modelos de dados
+│   │   ├── User.ts          # Lógica de negócio
+│   │   ├── UserEntity.ts    # Entidade TypeORM
+│   │   └── index.ts
+│   ├── routes/              # Rotas da API
+│   │   ├── AuthRoutes.ts
+│   │   └── index.ts
+│   ├── services/            # Serviços de negócio
+│   │   └── AuthService.ts   # Lógica de autenticação
+│   ├── utils/               # Utilitários
+│   │   ├── tokenUtils.ts    # Operações JWT
+│   │   └── validation.ts    # Validação com Joi
+│   ├── i18n/                # Internacionalização
+│   │   └── i18n.ts
+│   ├── app.ts               # Configuração Express
+│   └── server.ts            # Entry point
+├── locales/                 # Traduções
+│   ├── pt.json              # Português
+│   ├── en.json              # Inglês
+│   └── es.json              # Espanhol
+├── tests/                   # Testes
+│   ├── AuthService.test.ts  # Testes unitários
+│   └── AuthRoutes.test.ts   # Testes de integração
+├── docker-compose.yml       # Configuração Docker
+├── Dockerfile               # Imagem de produção
+├── jest.config.ts           # Configuração Jest
+├── tsconfig.json            # Configuração TypeScript
+└── package.json             # Dependências
+```
+
+## 📦 Build e Deploy
+
+### Build para Produção
+
 ```bash
-docker-compose up -d
-```
-
-This will start:
-- PostgreSQL (port 5432)
-- Redis (port 6379)
-- pgAdmin (port 5050) - Database management UI
-- Node.js API (port 3000)
-
-## 📚 API Endpoints
-
-### Authentication Routes (`/api/auth`)
-
-#### Register User
-```http
-POST /api/auth/register
-Content-Type: application/json
-
-{
-    "email": "user@example.com",
-    "password": "SecurePass123!",
-    "confirmPassword": "SecurePass123!",
-    "username": "username"
-}
-```
-
-**Response (201):**
-```json
-{
-    "success": true,
-    "message": "User registered successfully",
-    "data": {
-        "user": {
-            "id": "uuid",
-            "email": "user@example.com",
-            "username": "username",
-            "createdAt": "2024-01-01T00:00:00Z",
-            "updatedAt": "2024-01-01T00:00:00Z"
-        },
-        "accessToken": "eyJhbGc...",
-        "refreshToken": "eyJhbGc..."
-    }
-}
-```
-
-#### Login
-```http
-POST /api/auth/login
-Content-Type: application/json
-
-{
-    "email": "user@example.com",
-    "password": "SecurePass123!"
-}
-```
-
-#### Refresh Token
-```http
-POST /api/auth/refresh
-Content-Type: application/json
-
-{
-    "refreshToken": "eyJhbGc..."
-}
-```
-
-#### Get Profile
-```http
-GET /api/auth/profile
-Authorization: Bearer <accessToken>
-```
-
-#### Logout
-```http
-POST /api/auth/logout
-Authorization: Bearer <accessToken>
-```
-
-## 🔐 Password Requirements
-
-Passwords must contain:
-- ✅ Minimum 8 characters
-- ✅ At least one lowercase letter (a-z)
-- ✅ At least one uppercase letter (A-Z)
-- ✅ At least one digit (0-9)
-- ✅ At least one special character (!@#$%^&*...)
-
-**Example:** `MyPassword123!` ✓
-
-## 📁 Project Structure
-
-```
-src/
-├── app.ts                      # Express app configuration
-├── server.ts                   # Server entry point
-├── config/
-│   └── config.ts              # Environment configuration
-├── controllers/
-│   ├── AuthController.ts      # Authentication request handlers
-│   └── ItemController.ts      # Item resource handlers
-├── middlewares/
-│   ├── AuthMiddleware.ts      # JWT verification
-│   ├── ErrorHandler.ts        # Global error handling
-│   └── RateLimiter.ts         # Rate limiting configuration
-├── models/
-│   ├── User.ts                # User model and storage
-│   └── Item.ts                # Item model
-├── routes/
-│   ├── AuthRoutes.ts          # Authentication endpoints
-│   └── ItemRoutes.ts          # Item endpoints
-├── services/
-│   └── AuthService.ts         # Authentication business logic
-├── types/
-│   └── auth.ts                # TypeScript interfaces
-└── utils/
-    ├── tokenUtils.ts          # JWT operations
-    └── validation.ts          # Input validation
-tests/
-├── AuthService.test.ts        # Service unit tests
-└── AuthRoutes.test.ts         # Integration tests
-```
-
-## 🧪 Testing
-
-### Run All Tests
-```bash
-npm test
-```
-
-### Run Tests in Watch Mode
-```bash
-npm run test:watch
-```
-
-### Run Specific Test File
-```bash
-npm test AuthService.test.ts
-```
-
-### Test Coverage
-```bash
-npm test -- --coverage
-```
-
-## 📦 Building for Production
-
-### 1. Build TypeScript
-```bash
+# Compilar TypeScript
 npm run build
-```
 
-### 2. Start Production Server
-```bash
+# Iniciar servidor de produção
 npm start
 ```
 
-### 3. Using Docker
-```bash
-docker build -t lumina-api .
-docker run -e JWT_SECRET=your-secret -p 3000:3000 lumina-api
-```
-
-## 🔒 Security Features
-
-### Password Security
-- Bcrypt hashing with 10 salt rounds
-- Each password uniquely salted
-- Never stored or returned in plain text
-
-### Token Security
-- JWT signed with HMAC SHA-256
-- Access tokens: 15-minute expiry
-- Refresh tokens: 7-day expiry
-- Token signature validation on every request
-
-### Input Validation
-- Email validation (RFC 5322)
-- Password strength requirements
-- Username alphanumeric only
-- All inputs sanitized
-
-### Attack Prevention
-- **SQL Injection**: Input validation and no dynamic SQL
-- **XSS**: JSON API responses, input sanitization
-- **CSRF**: JWT in Authorization header
-- **Brute Force**: Rate limiting (5 requests/15 min for auth endpoints)
-- **Token Hijacking**: Short-lived access tokens
-- **User Enumeration**: Generic error messages
-
-## 📖 Full Documentation
-
-See [AUTHENTICATION.md](./AUTHENTICATION.md) for comprehensive documentation including:
-- Detailed security architecture
-- Authentication flows
-- Security measures and attack prevention
-- Deployment configuration
-- Complete API reference
-- Troubleshooting guide
-- Production checklist
-
-## 🚀 Quick Start Examples
-
-### Using cURL
+### Docker Production
 
 ```bash
-# Register
-curl -X POST http://localhost:3000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com",
-    "password": "SecurePass123!",
-    "confirmPassword": "SecurePass123!",
-    "username": "username"
-  }'
+# Build da imagem
+docker build -t lumina-api:latest .
 
-# Login
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com",
-    "password": "SecurePass123!"
-  }'
-
-# Get Profile (with token)
-curl -X GET http://localhost:3000/api/auth/profile \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-
-# Refresh Token
-curl -X POST http://localhost:3000/api/auth/refresh \
-  -H "Content-Type: application/json" \
-  -d '{
-    "refreshToken": "YOUR_REFRESH_TOKEN"
-  }'
+# Executar container
+docker run -d \
+  -p 3000:3000 \
+  -e JWT_SECRET=sua-chave-secreta \
+  -e DB_HOST=seu-host \
+  -e DB_PASSWORD=sua-senha \
+  --name lumina-api \
+  lumina-api:latest
 ```
 
-### Using Postman
+## 🌐 Internacionalização
 
-1. **Import Collection**: Use the API endpoints listed above
-2. **Set Variables**: 
-   - `base_url`: http://localhost:3000
-   - `accessToken`: Retrieved from login response
-   - `refreshToken`: Retrieved from login response
-3. **Test Workflows**: Register → Login → Get Profile → Refresh → Logout
+### Idiomas Suportados
+- 🇧🇷 Português (pt)
+- 🇺🇸 Inglês (en) - Padrão
+- 🇪🇸 Espanhol (es)
 
-## 🔧 Configuration Options
-
-### JWT Configuration
-```env
-JWT_SECRET=your-secret-key              # Signing secret
-JWT_ACCESS_EXPIRY=15m                   # Access token lifetime
-JWT_REFRESH_EXPIRY=7d                   # Refresh token lifetime
-```
-
-### Bcrypt Configuration
-```env
-BCRYPT_SALT_ROUNDS=10                   # Higher = slower (more secure but slower)
-```
-
-### Rate Limiting
-```env
-RATE_LIMIT_WINDOW_MS=900000             # Time window in milliseconds
-RATE_LIMIT_MAX_REQUESTS=100             # Max requests in window
-```
-
-## 📝 TypeScript Interfaces
-
-Key types for integration:
-
-```typescript
-// User data (without password)
-interface User {
-    id: string;
-    email: string;
-    username: string;
-    createdAt: Date;
-    updatedAt: Date;
-}
-
-// JWT payload
-interface JWTPayload {
-    userId: string;
-    email: string;
-    iat?: number;
-    exp?: number;
-}
-
-// Registration request
-interface RegisterRequest {
-    email: string;
-    password: string;
-    confirmPassword: string;
-    username: string;
-}
-
-// Login request
-interface LoginRequest {
-    email: string;
-    password: string;
-}
-```
-
-## 🔄 Token Flow Diagram
-
-```
-┌─────────────┐
-│   Client    │
-└──────┬──────┘
-       │ 1. POST /register or /login
-       ├─────────────────────────────────┐
-       │                                  │
-       ▼                                  ▼
-   ┌─────────────────────────────────────────────┐
-   │  AuthController                             │
-   │  - Validate input                           │
-   │  - Hash password (bcrypt)                   │
-   │  - Generate tokens (JWT)                    │
-   └────────────┬────────────────────────────────┘
-                │
-                │ 2. Returns accessToken + refreshToken
-                ▼
-           ┌─────────────┐
-           │   Client    │
-           │  Stores     │
-           │  Tokens     │
-           └────┬────────┘
-                │
-                │ 3. GET /protected (with accessToken)
-                │    Authorization: Bearer {accessToken}
-                ▼
-        ┌──────────────────────────┐
-        │  AuthMiddleware          │
-        │  - Verify signature      │
-        │  - Check expiration      │
-        │  - Attach user to req    │
-        └────┬─────────────────────┘
-             │
-             │ 4. Request allowed
-             ▼
-        ┌──────────────────┐
-        │ Protected Route  │
-        │ Process request  │
-        └──────────────────┘
-                │
-        Access token expires? No ──→ Send response
-                │ Yes
-                ▼
-        ┌──────────────────────────┐
-        │  Client notified to      │
-        │  refresh token           │
-        └────┬─────────────────────┘
-             │
-             │ 5. POST /refresh (with refreshToken)
-             ▼
-        ┌──────────────────────────┐
-        │  AuthService.refresh     │
-        │  - Verify refreshToken   │
-        │  - Generate new tokens   │
-        └────┬─────────────────────┘
-             │
-             │ 6. Return new accessToken + refreshToken
-             ▼
-        ┌──────────────────┐
-        │   Client         │
-        │   Updates tokens │
-        └──────────────────┘
-```
-
-## 📊 Performance Considerations
-
-### Bcrypt Salt Rounds
-- **Default**: 10 (recommended)
-- **Tradeoff**: Higher = more secure but slower
-- **Typical hash time**: ~100ms per 10 rounds
-
-### Rate Limiting Impact
-- **Auth endpoints**: 5 requests per 15 minutes per IP
-- **General API**: 100 requests per 15 minutes per IP
-- **Minimal overhead**: ~1ms per request for checks
-
-### Token Size
-- **Access Token**: ~200-300 bytes
-- **Refresh Token**: ~200-300 bytes
-- **Storage**: ~1KB per user including metadata
-
-## 🐛 Debugging
-
-### Enable Debug Logging
-```typescript
-// In any file
-console.log('Debug message:', { userId, timestamp });
-```
-
-### Check Token Expiration
-```bash
-# Decode JWT (without verification)
-# Use jwt.io website or:
-node -e "console.log(require('jsonwebtoken').decode('YOUR_TOKEN'))"
-```
-
-### Test Rate Limiting
-```bash
-# Send 6 rapid requests
-for i in {1..6}; do
-  curl -X POST http://localhost:3000/api/auth/login \
-    -H "Content-Type: application/json" \
-    -d '{"email":"test@test.com","password":"pass"}'
-  echo "\nRequest $i"
-done
-# 6th request should return 429
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-MIT License - see LICENSE file for details
-
-## 🆘 Support & Troubleshooting
-
-### Common Issues
-
-**Q: "Invalid or expired token" error**
-A: Access tokens expire after 15 minutes. Use the refresh token to get a new one.
-
-**Q: Password validation fails**
-A: Password must be 8+ characters with uppercase, lowercase, digit, and special character.
-
-**Q: Rate limiting blocks requests**
-A: Auth endpoints limit to 5 requests per 15 minutes per IP. Wait or adjust settings.
-
-For more troubleshooting, see [AUTHENTICATION.md](./AUTHENTICATION.md#troubleshooting)
-
-## 📞 Contact & Feedback
-
-For issues or questions:
-1. Check [AUTHENTICATION.md](./AUTHENTICATION.md)
-2. Review test files for usage examples
-3. Open an issue with details
-
----
-
-**Built with security in mind** 🔒
+**Stack**: Node.js • Express • TypeScript • JWT • PostgreSQL • TypeORM • Docker
