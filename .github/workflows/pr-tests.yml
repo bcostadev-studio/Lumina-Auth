@@ -9,6 +9,21 @@ jobs:
   pr-tests:
     name: Test Pull Request
     runs-on: ${{ matrix.os }}
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: ${{ secrets.TEST_DB_NAME }}
+          POSTGRES_USER: ${{ secrets.TEST_DB_USERNAME }}
+          POSTGRES_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -35,6 +50,15 @@ jobs:
 
       - name: Run tests
         run: npm test -- --coverage
+        env:
+          TEST_DB_HOST: localhost
+          TEST_DB_PORT: 5432
+          TEST_DB_USERNAME: ${{ secrets.TEST_DB_USERNAME }}
+          TEST_DB_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+          TEST_DB_NAME: ${{ secrets.TEST_DB_NAME }}
+          JWT_SECRET: ${{ secrets.TEST_JWT_SECRET }}
+          JWT_ACCESS_EXPIRY: ${{ secrets.TEST_JWT_ACCESS_EXPIRY }}
+          JWT_REFRESH_EXPIRY: ${{ secrets.TEST_JWT_REFRESH_EXPIRY }}
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
