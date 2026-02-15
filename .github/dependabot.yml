@@ -1,50 +1,41 @@
 version: 2
 updates:
-  # Enable version updates for npm dependencies
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "03:00"
+      interval: 'weekly'
+      day: 'monday'
+      time: '08:00'
     open-pull-requests-limit: 5
     pull-request-branch-name:
-      separator: "/"
-    reviewers:
-      - "your-github-username"
+      separator: '/'
     assignees:
-      - "your-github-username"
+      - 'HenriqueCosta05'
     labels:
-      - "dependencies"
-      - "npm"
+      - 'dependencies'
+      - 'npm'
     commit-message:
-      prefix: "chore"
-      prefix-scope: "deps"
-      include: "scope"
+      prefix: 'chore'
+      include: 'scope'
 
-  # Enable version updates for GitHub Actions
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "04:00"
-    reviewers:
-      - "your-github-username"
+      interval: 'weekly'
+      day: 'monday'
+      time: '07:00'
     labels:
-      - "github-actions"
+      - 'github-actions'
     commit-message:
-      prefix: "ci"
-      include: "scope"
+      prefix: 'ci'
+      include: 'scope'
 
   # Docker
-  - package-ecosystem: "docker"
-    directory: "/"
+  - package-ecosystem: 'docker'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "05:00"
-    reviewers:
-      - "your-github-username"
+      interval: 'weekly'
+      day: 'monday'
+      time: '06:00'
     labels:
-      - "docker"
+      - 'docker'
