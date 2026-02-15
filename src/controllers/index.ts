@@ -1,1 +1,1 @@
-export * from './ItemController';
+export * from './AuthController';

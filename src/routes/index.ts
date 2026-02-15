@@ -1,1 +1,1 @@
-export { default as ItemRoutes } from './ItemRoutes';
+export { AuthRoutes } from './AuthRoutes';

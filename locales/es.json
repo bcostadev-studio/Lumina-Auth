@@ -1,0 +1,53 @@
+{
+  "logs": {
+    "server_running": "Servidor ejecutándose en puerto {{port}}",
+    "database_connected": "Base de datos conectada exitosamente"
+  },
+  "errors": {
+    "email_already_registered": "Correo electrónico ya registrado",
+    "registration_failed": "El registro falló",
+    "login_failed": "El inicio de sesión falló",
+    "token_refresh_failed": "El refresco del token falló",
+    "logout_failed": "El cierre de sesión falló",
+    "user_not_found": "Usuario no encontrado",
+    "invalid_refresh_token": "Token de refresco inválido o expirado",
+    "invalid_credentials": "Correo electrónico o contraseña inválidos",
+    "invalid_email": "El correo electrónico debe ser una dirección de correo válida",
+    "password_too_short": "La contraseña debe tener al menos 8 caracteres",
+    "password_too_long": "La contraseña no debe exceder 128 caracteres",
+    "password_requirements": "La contraseña debe contener mayúsculas, minúsculas, dígitos y caracteres especiales",
+    "passwords_mismatch": "Las contraseñas no coinciden",
+    "invalid_username_characters": "El nombre de usuario solo puede contener caracteres alfanuméricos",
+    "username_too_short": "El nombre de usuario debe tener al menos 3 caracteres",
+    "username_too_long": "El nombre de usuario no debe exceder 30 caracteres",
+    "no_authorization_token": "No se proporcionó token de autorización",
+    "invalid_token": "Token inválido o expirado",
+    "token_verification_failed": "La verificación del token falló",
+    "authentication_required": "Se requiere autenticación",
+    "route_not_found": "Ruta no encontrada",
+    "internal_server_error": "Error interno del servidor",
+    "too_many_requests": "Demasiadas solicitudes, por favor intente más tarde",
+    "too_many_requests_ip": "Demasiadas solicitudes desde esta IP, por favor intente después de 15 minutos",
+    "too_many_auth_attempts": "Demasiados intentos de autenticación, por favor intente más tarde",
+    "too_many_auth_attempts_detailed": "Demasiados intentos de autenticación. Por favor intente después de 15 minutos",
+    "too_many_attempts_sensitive": "Demasiados intentos. Por favor intente después de 1 hora",
+    "email_required": "El correo electrónico es obligatorio",
+    "password_required": "La contraseña es obligatoria",
+    "confirm_password_required": "Confirmar contraseña es obligatorio",
+    "username_required": "El nombre de usuario es obligatorio",
+    "refresh_token_required": "El token de refresco es obligatorio",
+    "server_failed_to_start": "El servidor no pudo iniciar: {{error}}",
+    "database_connection_failed": "La conexión a la base de datos falló: {{error}}"
+  },
+  "success": {
+    "user_registered": "Usuario registrado correctamente",
+    "login_successful": "Inicio de sesión exitoso",
+    "token_refreshed": "Token refrescado correctamente",
+    "logout_successful": "Sesión cerrada correctamente",
+    "profile_retrieved": "Perfil recuperado correctamente"
+  },
+  "warnings": {
+    "rate_limit_approaching": "Se está acercando al límite de velocidad",
+    "many_failed_attempts": "Se han detectado múltiples intentos de inicio de sesión fallidos"
+  }
+}

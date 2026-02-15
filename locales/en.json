@@ -1,0 +1,53 @@
+{
+  "logs": {
+    "server_running": "Server running on port {{port}}",
+    "database_connected": "Database connected successfully"
+  },
+  "errors": {
+    "email_already_registered": "Email already registered",
+    "registration_failed": "Registration failed",
+    "login_failed": "Login failed",
+    "token_refresh_failed": "Token refresh failed",
+    "logout_failed": "Logout failed",
+    "user_not_found": "User not found",
+    "invalid_refresh_token": "Invalid or expired refresh token",
+    "invalid_credentials": "Invalid email or password",
+    "invalid_email": "Email must be a valid email address",
+    "password_too_short": "Password must be at least 8 characters long",
+    "password_too_long": "Password must not exceed 128 characters",
+    "password_requirements": "Password must contain lowercase, uppercase, digit, and special character",
+    "passwords_mismatch": "Passwords do not match",
+    "invalid_username_characters": "Username must contain only alphanumeric characters",
+    "username_too_short": "Username must be at least 3 characters long",
+    "username_too_long": "Username must not exceed 30 characters",
+    "no_authorization_token": "No authorization token provided",
+    "invalid_token": "Invalid or expired token",
+    "token_verification_failed": "Token verification failed",
+    "authentication_required": "Authentication required",
+    "route_not_found": "Route not found",
+    "internal_server_error": "Internal server error",
+    "too_many_requests": "Too many requests, please try again later",
+    "too_many_requests_ip": "Too many requests from this IP, please try again after 15 minutes",
+    "too_many_auth_attempts": "Too many authentication attempts, please try again later",
+    "too_many_auth_attempts_detailed": "Too many authentication attempts. Please try again after 15 minutes",
+    "too_many_attempts_sensitive": "Too many attempts. Please try again after 1 hour",
+    "email_required": "Email is required",
+    "password_required": "Password is required",
+    "confirm_password_required": "Confirm password is required",
+    "username_required": "Username is required",
+    "refresh_token_required": "Refresh token is required",
+    "server_failed_to_start": "Server failed to start: {{error}}",
+    "database_connection_failed": "Database connection failed: {{error}}"
+  },
+  "success": {
+    "user_registered": "User registered successfully",
+    "login_successful": "Login successful",
+    "token_refreshed": "Token refreshed successfully",
+    "logout_successful": "Logged out successfully",
+    "profile_retrieved": "Profile retrieved successfully"
+  },
+  "warnings": {
+    "rate_limit_approaching": "You are approaching the rate limit",
+    "many_failed_attempts": "Multiple failed login attempts detected"
+  }
+}

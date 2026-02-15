@@ -1,7 +1,7 @@
 {
-  "name": "lora-backend",
+  "name": "lumina-auth",
   "version": "1.0.0",
-  "description": "Server-side code for lora productivity system",
+  "description": "Server-side auth system for lumina application",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
@@ -12,20 +12,34 @@
     "test": "jest",
     "test:watch": "jest --watch"
   },
+  "dependencies": {
+    "bcrypt": "^6",
+    "cors": "^2",
+    "express-rate-limit": "^8",
+    "i18n": "^0.15.3",
+    "joi": "^18",
+    "jsonwebtoken": "^9",
+    "pg": "^8",
+    "reflect-metadata": "^0.2",
+    "typeorm": "^0.3"
+  },
   "devDependencies": {
-    "@types/express": "^5.0.6",
-    "@types/jest": "^30.0.0",
-    "@types/node": "^24.10.1",
-    "dotenv": "^17.2.3",
-    "eslint": "^9.39.1",
-    "express": "^5.2.1",
-    "install": "^0.13.0",
-    "jest": "^30.2.0",
-    "nodemon": "^3.1.11",
-    "npm": "^11.6.4",
-    "prettier": "^3.7.4",
-    "ts-jest": "^29.4.6",
-    "ts-node": "^10.9.2",
+    "@types/bcrypt": "^6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5",
+    "@types/i18n": "^0.13.12",
+    "@types/jest": "^30",
+    "@types/jsonwebtoken": "^9",
+    "@types/supertest": "^6",
+    "dotenv": "^17",
+    "eslint": "^9",
+    "express": "^5",
+    "jest": "^30",
+    "nodemon": "^3",
+    "prettier": "^3",
+    "supertest": "^7",
+    "ts-jest": "^29",
+    "ts-node": "^10",
     "typescript": "^5.9.3"
   }
 }

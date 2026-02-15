@@ -1,0 +1,53 @@
+{
+  "logs": {
+    "server_running": "Servidor rodando na porta {{port}}",
+    "database_connected": "Banco de dados conectado com sucesso"
+  },
+  "errors": {
+    "email_already_registered": "Email já registrado",
+    "registration_failed": "O registro falhou",
+    "login_failed": "O login falhou",
+    "token_refresh_failed": "O refresco do token falhou",
+    "logout_failed": "O logout falhou",
+    "user_not_found": "Usuário não encontrado",
+    "invalid_refresh_token": "Token de refresco inválido ou expirado",
+    "invalid_credentials": "Email ou senha inválidos",
+    "invalid_email": "O email deve ser um endereço de email válido",
+    "password_too_short": "A senha deve ter pelo menos 8 caracteres",
+    "password_too_long": "A senha não deve exceder 128 caracteres",
+    "password_requirements": "A senha deve conter letras maiúsculas, minúsculas, dígitos e caracteres especiais",
+    "passwords_mismatch": "As senhas não coincidem",
+    "invalid_username_characters": "O nome de usuário deve conter apenas caracteres alfanuméricos",
+    "username_too_short": "O nome de usuário deve ter pelo menos 3 caracteres",
+    "username_too_long": "O nome de usuário não deve exceder 30 caracteres",
+    "no_authorization_token": "Nenhum token de autorização fornecido",
+    "invalid_token": "Token inválido ou expirado",
+    "token_verification_failed": "A verificação do token falhou",
+    "authentication_required": "Autenticação necessária",
+    "route_not_found": "Rota não encontrada",
+    "internal_server_error": "Erro interno do servidor",
+    "too_many_requests": "Muitas requisições, por favor tente novamente mais tarde",
+    "too_many_requests_ip": "Muitas requisições desta IP, por favor tente novamente após 15 minutos",
+    "too_many_auth_attempts": "Muitas tentativas de autenticação, por favor tente novamente mais tarde",
+    "too_many_auth_attempts_detailed": "Muitas tentativas de autenticação. Por favor tente novamente após 15 minutos",
+    "too_many_attempts_sensitive": "Muitas tentativas. Por favor tente novamente após 1 hora",
+    "email_required": "O email é obrigatório",
+    "password_required": "A senha é obrigatória",
+    "confirm_password_required": "Confirmar senha é obrigatório",
+    "username_required": "O nome de usuário é obrigatório",
+    "refresh_token_required": "O token de refresco é obrigatório",
+    "server_failed_to_start": "O servidor falhou ao iniciar: {{error}}",
+    "database_connection_failed": "A conexão com o banco de dados falhou: {{error}}"
+  },
+  "success": {
+    "user_registered": "Usuário registrado com sucesso",
+    "login_successful": "Login realizado com sucesso",
+    "token_refreshed": "Token refrescado com sucesso",
+    "logout_successful": "Logout realizado com sucesso",
+    "profile_retrieved": "Perfil recuperado com sucesso"
+  },
+  "warnings": {
+    "rate_limit_approaching": "Você está se aproximando do limite de velocidade",
+    "many_failed_attempts": "Múltiplas tentativas de login falhadas detectadas"
+  }
+}
