@@ -1,16 +1,20 @@
 version: 2
 updates:
+  # ─── npm dependencies ───
   - package-ecosystem: 'npm'
     directory: '/'
+    target-branch: 'development'
     schedule:
       interval: 'weekly'
       day: 'monday'
       time: '09:00'
       timezone: 'America/Sao_Paulo'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 15
     pull-request-branch-name:
       separator: '/'
     assignees:
+      - 'HenriqueCosta05'
+    reviewers:
       - 'HenriqueCosta05'
     labels:
       - 'dependencies'
@@ -19,32 +23,96 @@ updates:
       prefix: 'chore(deps)'
       include: 'scope'
     groups:
-      dev-dependencies:
+      # Auth & security — review these carefully before merging
+      auth-and-security:
+        dependency-type: 'production'
+        patterns:
+          - 'bcrypt'
+          - 'jsonwebtoken'
+          - 'express-rate-limit'
+      # Database layer — test thoroughly, migrations can break
+      database:
+        dependency-type: 'production'
+        patterns:
+          - 'typeorm'
+          - 'pg'
+          - 'reflect-metadata'
+      # Low-risk production utilities
+      production-utilities:
+        dependency-type: 'production'
+        patterns:
+          - 'cors'
+          - 'dotenv'
+          - 'i18n'
+          - 'joi'
+      # Type definitions — almost always safe, batch aggressively
+      type-definitions:
         dependency-type: 'development'
         patterns:
           - '@types/*'
+      # Linting & formatting
+      linting-and-formatting:
+        dependency-type: 'development'
+        patterns:
           - 'eslint*'
           - 'prettier'
+      # Test tooling
+      testing:
+        dependency-type: 'development'
+        patterns:
           - 'jest'
+          - 'ts-jest'
+          - 'supertest'
+      # Build & dev tooling
+      build-tooling:
+        dependency-type: 'development'
+        patterns:
           - 'typescript'
-      production-dependencies:
-        dependency-type: 'production'
+          - 'ts-node'
+          - 'nodemon'
+          - 'express'
 
+  # ─── GitHub Actions ───
   - package-ecosystem: 'github-actions'
     directory: '/'
-    schedule:
-      interval: 'monthly'
-    labels:
-      - 'github-actions'
-    commit-message:
-      prefix: 'ci'
-      include: 'scope'
-
-  - package-ecosystem: 'docker'
-    directory: '/'
+    target-branch: 'development'
     schedule:
       interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'America/Sao_Paulo'
+    assignees:
+      - 'HenriqueCosta05'
+    reviewers:
+      - 'HenriqueCosta05'
     labels:
+      - 'dependencies'
+      - 'github-actions'
+    commit-message:
+      prefix: 'ci(deps)'
+      include: 'scope'
+    groups:
+      # All actions in a single PR — they version independently from your code
+      github-actions:
+        patterns:
+          - '*'
+
+  # ─── Docker ───
+  - package-ecosystem: 'docker'
+    directory: '/'
+    target-branch: 'development'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'America/Sao_Paulo'
+    assignees:
+      - 'HenriqueCosta05'
+    reviewers:
+      - 'HenriqueCosta05'
+    labels:
+      - 'dependencies'
       - 'docker'
     commit-message:
       prefix: 'chore(docker)'
+      include: 'scope'
