@@ -1,9 +1,10 @@
 services:
-  # Node.js API Application
   api:
+    container_name: lumina-api
     build:
       context: .
       dockerfile: Dockerfile
+      target: development
     ports:
       - '${PORT}:${PORT}'
     environment:
@@ -30,7 +31,9 @@ services:
     restart: unless-stopped
     command: npm run dev
     networks:
-      - lumina-network
+      lumina-global-net:
+        aliases:
+          - lumina.auth
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:${PORT}/health']
       interval: 10s
@@ -39,6 +42,7 @@ services:
 
   postgres:
     image: postgres:${POSTGRES_VERSION}
+    container_name: lumina-auth-postgres
     ports:
       - '${DB_PORT}:5432'
     environment:
@@ -50,7 +54,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     networks:
-      - lumina-network
+      - lumina-global-net
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME} -d ${DB_NAME}']
       interval: 10s
@@ -61,5 +65,5 @@ volumes:
   postgres_data:
 
 networks:
-  lumina-network:
-    driver: bridge
+  lumina-global-net:
+    external: true

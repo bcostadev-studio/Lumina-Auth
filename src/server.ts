@@ -8,7 +8,7 @@ async function startServer() {
   try {
     await initializeDatabase();
 
-    app.listen(config.port, () => {
+    app.listen(config.port, '0.0.0.0', () => {
       console.log(i18n.__('logs.server_running', { port: config.port.toString() }));
     });
   } catch (error) {

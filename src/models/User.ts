@@ -11,12 +11,15 @@ import config from '../config/config';
 import { AppDataSource } from '../config/database';
 import { UserEntity } from './UserEntity';
 import { i18n } from '../i18n/i18n';
+import { Repository } from 'typeorm';
 
 /**
  * PostgreSQL-based user storage using TypeORM
  */
 class UserStore {
-  private userRepository = AppDataSource.getRepository(UserEntity);
+  private get userRepository(): Repository<UserEntity> {
+    return AppDataSource.getRepository(UserEntity);
+  }
 
   /**
    * Create a new user with securely hashed password
