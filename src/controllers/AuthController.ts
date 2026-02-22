@@ -8,6 +8,8 @@ import authService from '../services/AuthService';
 import { validateRegister, validateLogin, validateRefreshToken } from '../utils/validation';
 import { AuthResponse } from '../@types/auth/Auth';
 import { i18n } from '../i18n/i18n';
+import passport from 'passport';
+import { generateTokenPair } from '../utils/tokenUtils';
 
 export class AuthController {
   /**
@@ -52,38 +54,55 @@ export class AuthController {
    * Login endpoint handler
    */
   async login(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const { error, value } = validateLogin(req.body);
-
-      if (error) {
-        res.status(400).json({
-          success: false,
-          message: error,
-        });
-        return;
-      }
-
-      const { email, password } = value!;
-
-      const result = await authService.login(email, password);
-
-      const response: AuthResponse = {
-        success: true,
-        message: i18n.__('success.login_successful'),
-        data: {
-          user: result.user,
-          accessToken: result.accessToken,
-          refreshToken: result.refreshToken,
-        },
-      };
-
-      res.status(200).json(response);
-    } catch (error: any) {
-      next({
-        status: error.statusCode || 500,
-        message: error.message || i18n.__('errors.login_failed'),
-      });
+    const { error: validationError } = validateLogin(req.body);
+    if (validationError) {
+      res.status(400).json({ success: false, message: validationError });
+      return;
     }
+
+    // 2. Delegate credential verification to Passport's local strategy
+    passport.authenticate(
+      'local',
+      { session: false },
+      async (
+        err: Error | null,
+        user: Express.User | false,
+        info: { message: string } | undefined
+      ) => {
+        if (err) {
+          return next({
+            status: 500,
+            message: err.message || i18n.__('errors.login_failed'),
+          });
+        }
+
+        // Authentication failed (bad credentials)
+        if (!user) {
+          return res.status(401).json({
+            success: false,
+            message: info?.message || i18n.__('errors.invalid_credentials'),
+          });
+        }
+
+        // 3. Authentication succeeded — issue tokens
+        const { accessToken, refreshToken } = generateTokenPair(user.userId, user.email);
+
+        // Fetch full profile for the response body (sans password)
+        const profile = await authService.getUserProfile(user.userId);
+
+        const response: AuthResponse = {
+          success: true,
+          message: i18n.__('success.login_successful'),
+          data: {
+            user: profile!,
+            accessToken,
+            refreshToken,
+          },
+        };
+
+        return res.status(200).json(response);
+      }
+    )(req, res, next);
   }
 
   /**
@@ -105,15 +124,16 @@ export class AuthController {
 
       const result = await authService.refreshToken(refreshToken);
 
-      const response: AuthResponse = {
+      const response = {
         success: true,
         message: i18n.__('success.token_refreshed'),
         data: {
-          user: undefined as any, // Token refresh doesn't return user
           accessToken: result.accessToken,
           refreshToken: result.refreshToken,
         },
       };
+
+      res.status(200).json(response);
 
       res.status(200).json(result);
     } catch (error: any) {

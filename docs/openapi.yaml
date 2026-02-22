@@ -1,0 +1,559 @@
+openapi: 3.0.3
+
+info:
+  title: Lumina Auth API
+  description: |
+    Authentication service for the Lumina application.
+
+    Provides user registration, JWT-based login, token refresh,
+    and profile management. All authenticated endpoints expect a
+    Bearer token in the `Authorization` header.
+
+    ## Rate Limiting
+    Rate-limited endpoints return standard `RateLimit-*` headers:
+    - `RateLimit-Limit` — max requests allowed in the window
+    - `RateLimit-Remaining` — remaining requests in the current window
+    - `RateLimit-Reset` — seconds until the window resets
+
+    | Scope | Window | Max Requests |
+    |-------|--------|--------------|
+    | General (all routes) | 15 min | 100 |
+    | Auth (login / register) | 15 min | 5 |
+
+    ## Client Code Generation
+    This spec is designed for automatic typed-client generation.
+    Recommended tools:
+    - **Orval** — `npx orval --input ./docs/openapi.yaml`
+    - **Kubb** — `npx kubb generate`
+    - **Hey API** — `npx @hey-api/openapi-ts`
+    - **openapi-typescript** — `npx openapi-typescript ./docs/openapi.yaml -o ./src/api.d.ts`
+  version: 1.0.0
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:3000
+    description: Local development
+
+tags:
+  - name: Health
+    description: Service health monitoring
+  - name: Auth
+    description: Registration, login, token management
+  - name: User
+    description: Authenticated user operations
+
+paths:
+  # ──────────────────────────────────────────────────
+  # Health
+  # ──────────────────────────────────────────────────
+  /health:
+    get:
+      operationId: healthCheck
+      summary: Service health check
+      description: Returns service status. No authentication required.
+      tags: [Health]
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: ok
+                timestamp: '2025-07-14T12:00:00.000Z'
+
+  # ──────────────────────────────────────────────────
+  # Register
+  # ──────────────────────────────────────────────────
+  /api/auth/register:
+    post:
+      operationId: register
+      summary: Register a new user
+      description: |
+        Creates a new account and returns the user profile together
+        with an access / refresh token pair.
+
+        **Rate limited:** 5 requests per 15-minute window.
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              email: jane@example.com
+              password: 'S3cur3Pass!'
+              confirmPassword: 'S3cur3Pass!'
+              username: janedoe
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSuccessResponse'
+        '400':
+          description: Validation error (invalid email, weak password, mismatch, etc.)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidEmail:
+                  summary: Invalid email
+                  value:
+                    success: false
+                    message: 'Email must be a valid email address'
+                weakPassword:
+                  summary: Weak password
+                  value:
+                    success: false
+                    message: 'Password must be at least 8 characters long; Password must contain lowercase, uppercase, digit, and special character'
+                passwordMismatch:
+                  summary: Passwords don't match
+                  value:
+                    success: false
+                    message: 'Passwords do not match'
+                shortUsername:
+                  summary: Username too short
+                  value:
+                    success: false
+                    message: 'Username must be at least 3 characters long'
+        '409':
+          description: Email already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: 'Email already registered'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # ──────────────────────────────────────────────────
+  # Login
+  # ──────────────────────────────────────────────────
+  /api/auth/login:
+    post:
+      operationId: login
+      summary: Authenticate with email and password
+      description: |
+        Validates credentials via Passport local strategy and returns
+        the user profile with an access / refresh token pair.
+
+        **Rate limited:** 5 requests per 15-minute window.
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              email: jane@example.com
+              password: 'S3cur3Pass!'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSuccessResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: 'Email must be a valid email address'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: 'Invalid email or password'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # ──────────────────────────────────────────────────
+  # Refresh
+  # ──────────────────────────────────────────────────
+  /api/auth/refresh:
+    post:
+      operationId: refreshToken
+      summary: Refresh the access token
+      description: |
+        Exchanges a valid refresh token for a new access / refresh
+        token pair. The previous refresh token should be discarded.
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+            example:
+              refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+      responses:
+        '200':
+          description: Tokens refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefreshResponse'
+        '400':
+          description: Missing refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: 'Refresh token is required'
+        '401':
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: 'Invalid or expired refresh token'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # ──────────────────────────────────────────────────
+  # Logout
+  # ──────────────────────────────────────────────────
+  /api/auth/logout:
+    post:
+      operationId: logout
+      summary: Log out the current user
+      description: |
+        Signals the intent to end the session. In this stateless JWT
+        architecture the server acknowledges the request; the client
+        must discard its stored tokens.
+      tags: [Auth]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logout acknowledged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                success: true
+                message: 'Logged out successfully'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # ──────────────────────────────────────────────────
+  # Profile
+  # ──────────────────────────────────────────────────
+  /api/auth/profile:
+    get:
+      operationId: getProfile
+      summary: Get the authenticated user's profile
+      tags: [User]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profile retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: User no longer exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: 'User not found'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  # ──────────────────────────────────────────────────
+  # Me (alias)
+  # ──────────────────────────────────────────────────
+  /api/auth/me:
+    get:
+      operationId: getCurrentUser
+      summary: Get the authenticated user (alias for /profile)
+      tags: [User]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profile retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: User no longer exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: 'User not found'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+# ════════════════════════════════════════════════════
+# Components
+# ════════════════════════════════════════════════════
+components:
+  # ── Security ─────────────────────────────────────
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Access token obtained from `/api/auth/login` or `/api/auth/register`.
+        Pass it as `Authorization: Bearer <token>`.
+
+  # ── Reusable Responses ───────────────────────────
+  responses:
+    Unauthorized:
+      description: Authentication required or token invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            noToken:
+              summary: No token provided
+              value:
+                success: false
+                message: 'No authorization token provided'
+            invalidToken:
+              summary: Invalid or expired token
+              value:
+                success: false
+                message: 'Invalid or expired token'
+
+    RateLimited:
+      description: Too many requests
+      headers:
+        RateLimit-Limit:
+          schema:
+            type: integer
+          description: Max requests allowed in the window
+        RateLimit-Remaining:
+          schema:
+            type: integer
+          description: Requests remaining in the current window
+        RateLimit-Reset:
+          schema:
+            type: integer
+          description: Seconds until the window resets
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            message: 'Too many authentication attempts. Please try again after 15 minutes'
+
+    InternalError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            message: 'Internal server error'
+
+  # ── Schemas ──────────────────────────────────────
+  schemas:
+    # ── Requests ──
+    RegisterRequest:
+      type: object
+      required: [email, password, confirmPassword, username]
+      properties:
+        email:
+          type: string
+          format: email
+          description: Unique email address (lowercased on the server).
+        password:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 128
+          description: |
+            Must contain at least one lowercase letter, one uppercase
+            letter, one digit, and one special character.
+        confirmPassword:
+          type: string
+          format: password
+          description: Must match `password` exactly.
+        username:
+          type: string
+          pattern: '^[a-zA-Z0-9]{3,30}$'
+          minLength: 3
+          maxLength: 30
+          description: Alphanumeric only, 3–30 characters.
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    RefreshTokenRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+          description: The refresh token returned by login or register.
+
+    # ── Domain Models ──
+    UserProfile:
+      type: object
+      description: Public user representation (never contains the password hash).
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        roles:
+          type: array
+          items:
+            type: string
+          example: ['user']
+      required: [id, email, username, createdAt, updatedAt, roles]
+
+    # ── Responses ──
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        timestamp:
+          type: string
+          format: date-time
+      required: [status, timestamp]
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        message:
+          type: string
+      required: [success, message]
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        message:
+          type: string
+      required: [success, message]
+
+    AuthSuccessResponse:
+      type: object
+      description: Returned by both register (201) and login (200).
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        message:
+          type: string
+        data:
+          type: object
+          required: [user, accessToken, refreshToken]
+          properties:
+            user:
+              $ref: '#/components/schemas/UserProfile'
+            accessToken:
+              type: string
+              description: Short-lived JWT for authenticating requests.
+            refreshToken:
+              type: string
+              description: Long-lived JWT for obtaining new token pairs.
+      required: [success, message, data]
+
+    TokenRefreshResponse:
+      type: object
+      description: New token pair issued after a successful refresh.
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        message:
+          type: string
+        data:
+          type: object
+          required: [accessToken, refreshToken]
+          properties:
+            accessToken:
+              type: string
+            refreshToken:
+              type: string
+      required: [success, message, data]
+
+    ProfileResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+        message:
+          type: string
+        data:
+          type: object
+          required: [user]
+          properties:
+            user:
+              $ref: '#/components/schemas/UserProfile'
+      required: [success, message, data]

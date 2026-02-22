@@ -1,6 +1,8 @@
 export interface Config {
   port: number;
   nodeEnv: string;
+  appHost: string;
+  appBaseUrl: string;
   jwt: {
     secret: string;
     accessTokenExpiry: number;

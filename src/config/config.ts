@@ -3,9 +3,14 @@ import { Config } from '../@types/config/Configuration';
 
 dotenv.config();
 
+const port = Number(process.env.PORT) || 3000;
+const appHost = process.env.APP_HOST || 'localhost';
+
 const config: Config = {
-  port: Number(process.env.PORT) || 3000,
+  port,
   nodeEnv: process.env.NODE_ENV || 'development',
+  appHost,
+  appBaseUrl: `http://${appHost}:${port}`,
   jwt: {
     secret: process.env.JWT_SECRET || '',
     accessTokenExpiry: Number(process.env.JWT_ACCESS_EXPIRY) || 0,

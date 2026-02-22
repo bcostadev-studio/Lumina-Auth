@@ -9,17 +9,6 @@ import { JWTPayload } from '../@types/auth/Auth';
 import { i18n } from '../i18n/i18n';
 
 /**
- * Extend Express Request to include user data
- */
-declare global {
-  namespace Express {
-    interface Request {
-      user?: JWTPayload;
-    }
-  }
-}
-
-/**
  * Authentication middleware - verifies JWT token
  * Attaches decoded user data to request object
  */
