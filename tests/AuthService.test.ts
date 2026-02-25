@@ -6,7 +6,6 @@
 import authService from '../src/services/AuthService';
 import userStore from '../src/models/User';
 import { validateRegister, validateLogin, validateRefreshToken } from '../src/utils/validation';
-import { generateAccessToken, generateRefreshToken } from '../src/utils/tokenUtils';
 
 describe('AuthService', () => {
   beforeEach(async () => {

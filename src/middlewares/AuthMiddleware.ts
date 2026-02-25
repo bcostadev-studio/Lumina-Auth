@@ -4,9 +4,33 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { extractTokenFromHeader, verifyToken } from '../utils/tokenUtils';
-import { JWTPayload } from '../@types/auth/Auth';
+import { verifyToken } from '../utils/tokenUtils';
 import { i18n } from '../i18n/i18n';
+import { JWTPayload } from '../@types/auth/Auth';
+
+function validateAndExtractJWT(authHeader: string | string[] | undefined): JWTPayload | null {
+  if (authHeader === undefined) return null;
+  if (typeof authHeader !== 'string') return null;
+  if (authHeader.length === 0) return null;
+
+  const bearerPrefix = 'Bearer ';
+  const hasBearerPrefix = authHeader.substring(0, bearerPrefix.length) === bearerPrefix;
+  if (!hasBearerPrefix) return null;
+
+  const tokenPart = authHeader.substring(bearerPrefix.length);
+  if (tokenPart.length === 0) return null;
+
+  const decoded = verifyToken(tokenPart);
+  if (decoded === null) return null;
+
+  if (typeof decoded !== 'object') return null;
+  if (!('userId' in decoded)) return null;
+  if (!('email' in decoded)) return null;
+  if (typeof decoded.userId !== 'string') return null;
+  if (typeof decoded.email !== 'string') return null;
+
+  return decoded;
+}
 
 /**
  * Authentication middleware - verifies JWT token
@@ -14,10 +38,9 @@ import { i18n } from '../i18n/i18n';
  */
 export const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
   try {
-    // Extract token from Authorization header
-    const token = extractTokenFromHeader(req.headers.authorization);
+    const validatedPayload = validateAndExtractJWT(req.headers.authorization);
 
-    if (!token) {
+    if (validatedPayload === null) {
       res.status(401).json({
         success: false,
         message: i18n.__('errors.no_authorization_token'),
@@ -25,20 +48,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction):
       return;
     }
 
-    // Verify token
-    const decoded = verifyToken(token);
-
-    if (!decoded) {
-      res.status(401).json({
-        success: false,
-        message: i18n.__('errors.invalid_token'),
-      });
-      return;
-    }
-
-    // Attach user data to request
-    req.user = decoded;
-
+    req.user = validatedPayload;
     next();
   } catch (error) {
     res.status(401).json({
@@ -54,13 +64,10 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction):
  */
 export const optionalAuthMiddleware = (req: Request, res: Response, next: NextFunction): void => {
   try {
-    const token = extractTokenFromHeader(req.headers.authorization);
+    const validatedPayload = validateAndExtractJWT(req.headers.authorization);
 
-    if (token) {
-      const decoded = verifyToken(token);
-      if (decoded) {
-        req.user = decoded;
-      }
+    if (validatedPayload !== null) {
+      req.user = validatedPayload;
     }
 
     next();

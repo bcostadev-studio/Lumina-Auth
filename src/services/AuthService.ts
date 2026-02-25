@@ -5,7 +5,7 @@
 
 import userStore from '../models/User';
 import { generateTokenPair, verifyToken } from '../utils/tokenUtils';
-import { AuthError, User } from '../@types/auth/Auth';
+import { User } from '../@types/auth/Auth';
 import { i18n } from '../i18n/i18n';
 
 /**
@@ -137,14 +137,14 @@ export class AuthService {
    * Validate access token
    * Returns user data if valid, null if invalid
    */
-  validateAccessToken(token: string): { userId: string; email: string } | null {
+  async validateAccessToken(token: string): Promise<{ userId: string; email: string } | null> {
     const decoded = verifyToken(token);
     if (!decoded) {
       return null;
     }
 
     // Optionally verify user still exists
-    const user = userStore.findById(decoded.userId);
+    const user = await userStore.findById(decoded.userId);
     if (!user) {
       return null;
     }

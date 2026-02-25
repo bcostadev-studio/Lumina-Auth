@@ -124,18 +124,14 @@ export class AuthController {
 
       const result = await authService.refreshToken(refreshToken);
 
-      const response = {
+      res.status(200).json({
         success: true,
         message: i18n.__('success.token_refreshed'),
         data: {
           accessToken: result.accessToken,
           refreshToken: result.refreshToken,
         },
-      };
-
-      res.status(200).json(response);
-
-      res.status(200).json(result);
+      });
     } catch (error: any) {
       next({
         status: error.statusCode || 500,
@@ -181,7 +177,7 @@ export class AuthController {
         return;
       }
 
-      const user = authService.getUserProfile(req.user.userId);
+      const user = await authService.getUserProfile(req.user.userId);
 
       if (!user) {
         res.status(404).json({

@@ -6,7 +6,7 @@
 import { Router } from 'express';
 import authController from '../controllers/AuthController';
 import { authMiddleware } from '../middlewares/AuthMiddleware';
-import { authLimiter, strictLimiter } from '../middlewares/RateLimiter';
+import { authLimiter } from '../middlewares/RateLimiter';
 
 const router = Router();
 
@@ -16,7 +16,7 @@ const router = Router();
  * Rate limited to prevent abuse
  */
 router.post('/register', authLimiter, async (req, res, next) => {
-    await authController.register(req, res, next);
+  await authController.register(req, res, next);
 });
 
 /**
@@ -25,42 +25,46 @@ router.post('/register', authLimiter, async (req, res, next) => {
  * Rate limited to prevent brute force attacks
  */
 router.post('/login', authLimiter, async (req, res, next) => {
-    await authController.login(req, res, next);
+  await authController.login(req, res, next);
 });
 
 /**
  * POST /api/auth/refresh
  * Refresh access token using refresh token
+ * Rate limited to prevent token abuse
  */
-router.post('/refresh', async (req, res, next) => {
-    await authController.refreshToken(req, res, next);
+router.post('/refresh', authLimiter, async (req, res, next) => {
+  await authController.refreshToken(req, res, next);
 });
 
 /**
  * POST /api/auth/logout
  * Logout user (client-side token removal in JWT systems)
  * Requires authentication
+ * Rate limited to prevent abuse
  */
-router.post('/logout', authMiddleware, async (req, res, next) => {
-    await authController.logout(req, res, next);
+router.post('/logout', authLimiter, authMiddleware, async (req, res, next) => {
+  await authController.logout(req, res, next);
 });
 
 /**
  * GET /api/auth/profile
  * Get current user profile
  * Requires authentication
+ * Rate limited to prevent abuse
  */
-router.get('/profile', authMiddleware, async (req, res, next) => {
-    await authController.getProfile(req, res, next);
+router.get('/profile', authLimiter, authMiddleware, async (req, res, next) => {
+  await authController.getProfile(req, res, next);
 });
 
 /**
  * GET /api/auth/me
  * Alias for /profile - get current user
  * Requires authentication
+ * Rate limited to prevent abuse
  */
-router.get('/me', authMiddleware, async (req, res, next) => {
-    await authController.getProfile(req, res, next);
+router.get('/me', authLimiter, authMiddleware, async (req, res, next) => {
+  await authController.getProfile(req, res, next);
 });
 
 export { router as AuthRoutes };

@@ -8,11 +8,6 @@ import { RegisterRequest, LoginRequest, RefreshTokenRequest } from '../@types/au
 import { i18n } from '../i18n/i18n';
 
 /**
- * Email validation regex
- */
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-/**
  * Validation schema for user registration
  */
 export const registerSchema = Joi.object({
